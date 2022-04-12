@@ -14,10 +14,10 @@ Log Requirements:
   - Labs crf
   - Labels
 
-
 Program Structure:
 
   Front End:
+  [Status Update?*, Warning for low supplies?]
     User Enters:
     - Date
     - Circuit Type
@@ -35,7 +35,7 @@ Program Structure:
     - Control length [same/different]
     - Compound(s)
 
-    Status Update:
+    *Status Update:
     - How much granularity do we want? Circuit?
     - Add notes
       Status:
