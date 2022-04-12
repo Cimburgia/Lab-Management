@@ -1,0 +1,81 @@
+Log Requirements:
+
+  Excel:
+  - Box maps
+  - Log of all samples
+  - Log of all circuits
+  - Overview of all drugs (high level)
+  - Inventory
+
+  Word:
+  - Title page crf
+  - Dosing crf
+  - Timepoints crf
+  - Labs crf
+  - Labels
+
+
+Program Structure:
+
+  Front End:
+    User Enters:
+    - Date
+    - Circuit Type
+      ECMO:
+      - Oxygenator Coating
+      - Pump Coating
+      CRRT:
+      - Filter type
+      Combo:
+      - Oxygenator Coating
+      - Pump Coating
+      - Filter type
+    - Circuit Length [4hr, 6hr, 8hr, 10hr, 24hr]
+    - Control [y/n]
+    - Control length [same/different]
+    - Compound(s)
+
+    Status Update:
+    - How much granularity do we want? Circuit?
+    - Add notes
+      Status:
+      [Run -> Complete -> Shipped -> Data Received | Failed]
+      * If failed, don't ship
+
+    Back End:
+    [Python]
+    [Look into editing .xsls with Python]
+    [Naming scheme must be consistent for all files]
+
+    Excel:
+    [Should we have an archive system?]
+    - Box maps
+      [Box, Cell, SampleID, Date, Timepoint]
+      - Follow same format for all. Left/Right -> Top/Bottom or A1-9 -> I1 -> 9
+      - Check if box exists/has room, if not then create (query spreadsheet?)
+      - Begin fill in first empty spot
+      - Save file
+    - Log of all samples
+      [Box, Cell, SampleID, Date, Timepoint, Notes]
+      - Pull from box map and concat into one file, notes are added as needed
+      - New tab for each compound
+    - Log of all circuits
+      [Drug, Date, Circuit Type, Filter Type, Oxygenator Type, Pump Type,
+      Circuit Number, Circuit Time, Analysis Lab, Status, Storage Location,
+      Box, Notes]
+      - Use this to query
+      - User can update, but restrict
+    - Overview of all drugs (high level)
+      [Drug, Total samples, # ECMO circuits, # CRRT circuits, # Std Controls,
+      # Glass Controls, # Light Controls, # Crystalloid, Class, Lead
+      Model?, Initial Ex Vivo (CRRT, ECMO, Control), Lab]
+    - Inventory
+      - Update all materials used
+
+    Word:
+    [Use python to access Macros and make spreadsheet]
+    - Title page crf
+    - Dosing crf
+    - Timepoints crf
+    - Labs crf
+    - Labels
