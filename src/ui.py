@@ -16,16 +16,24 @@ class MainFrame(tk.Frame):
 
 class LoginFrame(tk.Frame):
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent, width=600, height=600)
         self.parent = parent
 
-        self.parent.configure(background='green')
-        label = tk.Label(self, text="Hello World")
-        label.pack()
+        # Build frame widgets
+        label = tk.Label(self, text="Please log in to access Box.")
+        label.place(x=40, y=30)
+        user_name = tk.Label(self, text="uNID:").place(x=40, y=60)
+        password = tk.Label(self, text="Password:").place(x=40, y=100)
+        user_name_input = tk.Entry(self, width=40).place(x=110, y=60)
+        password_input = tk.Entry(self, width=40).place(x=110, y=100)
 
-        button = tk.Button(self, text="To Next", command=self.parent.close_login)
-        button.pack()
+        submit = tk.Button(self, text="Login", command=self.login)
+        submit.place(x=40, y=130)
 
+        def login(self):
+            #TODO: Interface with server, log in to box
+            parent.close_login()
+            
 class MainApplication(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -43,7 +51,7 @@ class MainApplication(tk.Tk):
 
 
 def main():
-    
+
     root = MainApplication()
     root.mainloop()
 
