@@ -78,10 +78,16 @@ class MainApplication(tk.Frame):
         self.name_entry2.delete(0, 'end')
         self.screen_box.delete(1.0, "end-1c")
         for abrv, drug in self.drugs.items():
-            self.screen_box.insert("end-1c", "{} ({})\n".format(drug, abrv))
+            print_to_screen(self.screen_box, "{} ({})\n".format(drug, abrv))
 
     def run_circuit(self):
-        print("Hi Travis!")
+
+        print_to_screen(self.screen_box, "Creating circuit...")
+
+def print_to_screen(screen, message, delete=False):
+    if delete:
+        screen.delete(1.0, 'end-1c')
+    screen.insert('end-1c', message)
 
 def main():
     root = tk.Tk()
