@@ -20,11 +20,12 @@ class Circuit():
         self.date = up_date
 
     def print_circuit(self):
-        str = ("{} Circuit:Type: {}\n"
+        str = ("{} Circuit Overview:\n"
+                "Type: {}\n"
                 "Length: {} hours\n"
-                "Drugs: {}"
+                "Drugs:  {}"
                 "Doses: {}\n"
-                "Control: {}")
+                "Control: {}\n")
         return str.format(self.date,
                         self.type,
                         self.length,
@@ -34,13 +35,14 @@ class Circuit():
 
     def print_drugs(self):
         s = ""
+        tab = ""
         for abrv, drug in self.drugs.items():
-            s = s + "{} ({})\n".format(drug, abrv)
+            s = s + tab + "{} ({})\n".format(drug, abrv)
+            tab = "\t"
         return s
 
     def get_num_samples(self):
-        # returns number of samples based on dose number and circuit length
-        pass
+        return len(self.drugs)
 
     def setID(self):
         # set ID based on circuit #

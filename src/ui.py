@@ -112,20 +112,22 @@ class MainApplication(tk.Frame):
             print_to_screen(self.screen_box, "passed.\n")
 
         # User check
-        user_check = show_message("Please double check circuit. Do you wish to \
+        new_circuit = circuit.Circuit(length, num_doses, compounds, type,
+                                        control, date)
+        print_to_screen(self.screen_box, new_circuit.print_circuit())
+        user_check = show_message("Please review circuit. Do you wish to \
                                     continue?", type='question')
         if user_check == 'yes':
-            new_circuit = circuit.Circuit(length, num_doses, compounds, type,
-                                            control, date)
-            message = "Creating new {} circuit...\n".format(new_circuit.type)
+            message = "\nCreating new {} circuit...\n".format(new_circuit.type)
             print_to_screen(self.screen_box, message)
-            print_to_screen(self.screen_box, new_circuit.print_circuit())
         else:
             return
 
+        server.start_update(new_circuit)
+
 def show_message(message, type='error'):
     if type == 'question':
-        return tk.messagebox.askquestion('', message)
+        return tk.messagebox.askquestion('User Check', message)
     else:
         tk.messagebox.showerror('Error', message)
     return
