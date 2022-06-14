@@ -1,7 +1,7 @@
 import sys
 import tkinter as tk
-import pandas as pd
 import tkcalendar as tkcal
+import tkinter.messagebox
 # program libraries
 import server
 import circuit
@@ -36,7 +36,9 @@ class MainApplication(tk.Frame):
         self.length_label = tk.Label(self, text="Experiment Length:\n(hours)",
                                 justify=tk.LEFT)
         self.length_label.place(x=40, y=150)
-        self.length_entry = tk.Entry(self, width=10)
+        self.val = tk.StringVar()
+        self.val.set("6")
+        self.length_entry = tk.Entry(self, textvariable=self.val, width=10)
         self.length_entry.place(x=155, y=155)
         # Control
         self.label_control = tk.Label(self, text="Control:")
@@ -86,25 +88,47 @@ class MainApplication(tk.Frame):
         self.name_entry2.delete(0, 'end')
         self.screen_box.delete(1.0, "end-1c")
         for abrv, drug in self.drugs.items():
-            print_to_screen(self.screen_box, "{} ({})\n".format(drug, abrv))
+            print_to_screen(self.screen_box, "Added {} ({})\n".format(drug, abrv))
 
     def run_circuit(self):
         # Get fields
-        length = self.length_entry.get()
+        length = self.val.get()
         num_doses = self.variable1.get()
         compounds = self.drugs
         type = self.variable.get()
         control = True if self.variable2.get() == "Yes" else False
-        circuit_date = self.date_cal.get_date()
-        # reformate because set_format isnt' working for tkcalendar
-        temps = str(circuit_date).split('-')
-        form_date = "{}/{}/{}".format(temps[1], temps[2], temps[0])
+        date = self.date_cal.get_date()
 
-        new_circuit = circuit.Circuit(length, num_doses, compounds, type,
-                                        control, form_date)
-        message = "Creating new {} circuit...\n".format(new_circuit.type)
-        print_to_screen(self.screen_box, message, delete=True)
+        # Check entries
+        print_to_screen(self.screen_box, "Checking entries...", delete=True)
+        if not length.isnumeric():
+            show_message('Circuit length must be numeric.')
+            return
+        if not compounds or '' in compounds:
+            compounds.pop('', None)
+            show_message('No drugs added.')
+            return
+        else:
+            print_to_screen(self.screen_box, "passed.\n")
 
+        # User check
+        user_check = show_message("Please double check circuit. Do you wish to \
+                                    continue?", type='question')
+        if user_check == 'yes':
+            new_circuit = circuit.Circuit(length, num_doses, compounds, type,
+                                            control, date)
+            message = "Creating new {} circuit...\n".format(new_circuit.type)
+            print_to_screen(self.screen_box, message)
+            print_to_screen(self.screen_box, new_circuit.print_circuit())
+        else:
+            return
+
+def show_message(message, type='error'):
+    if type == 'question':
+        return tk.messagebox.askquestion('', message)
+    else:
+        tk.messagebox.showerror('Error', message)
+    return
 
 def print_to_screen(screen, message, delete=False):
     if delete:
