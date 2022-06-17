@@ -4,4 +4,4 @@ import numpy as np
 import circuit
 
 def start_update(circuit):
-    print(circuit.print_circuit())
+    IDs = circuit.set_IDs

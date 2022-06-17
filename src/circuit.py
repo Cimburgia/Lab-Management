@@ -3,14 +3,16 @@
 class Circuit():
 
     def __init__(self,
+                 circuit_num,
                  length,
-                 num_doses,
+                 timepoints,
                  drugs,
                  type,
                  control,
                  date):
         self.length = length
-        self.num_doses = num_doses
+        self.circuit_num = circuit_num
+        self.timepoints = timpoints
         self.drugs = drugs
         self.type = type
         self.control = control
@@ -24,13 +26,11 @@ class Circuit():
                 "Type: {}\n"
                 "Length: {} hours\n"
                 "Drugs:  {}"
-                "Doses: {}\n"
                 "Control: {}\n")
         return str.format(self.date,
                         self.type,
                         self.length,
                         self.print_drugs(),
-                        self.num_doses,
                         self.control)
 
     def print_drugs(self):
@@ -41,9 +41,32 @@ class Circuit():
             tab = "\t"
         return s
 
-    def get_num_samples(self):
-        return len(self.drugs)
+    def set_IDs(self):
+        # Generate 1 to n labels
+        types = []
+        IDs = []
+        coad = "CoAd" if len(self.drugs) > 1 else ""
 
-    def setID(self):
-        # set ID based on circuit #
-        pass
+
+        if self.type == "ECMO":
+            types.append("EA")
+            if self.control:
+                types.append("EC")
+        if self.type == "CRRT":
+            types.append("CA")
+            types.append("CH")
+            if self.control:
+                types.append("CC")
+        if self.type == "ECMO and CRRT":
+            types.append("EA")
+            types.append("CA")
+            types.append("CH")
+            if self.control:
+                sample_types.append("EC")
+
+        for t in types:
+            for d in self.drugs.keys():
+                temp_id = t[0] + coad + self.circuit_num + d + t[1]
+                IDs.append(temp_id)
+
+        return IDs
