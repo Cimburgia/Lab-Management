@@ -12,7 +12,7 @@ class MainApplication(tk.Frame):
         self.parent = parent
 
         # Set up window
-        self.parent.geometry('700x380')
+        self.parent.geometry('720x420')
         self.parent.title('Lab-Manager')
         # Initiate lists
         self.drugs = {}
@@ -35,7 +35,7 @@ class MainApplication(tk.Frame):
         # Circuit type
         self.type_label = tk.Label(self, text="Circuit Type:")
         self.type_label.place(x=40, y=120)
-        circuits = ['ECMO','CRRT','ECMO and CRRT','Sepcialized Controls']
+        circuits = ['ECMO','CRRT','ECMO and CRRT']
         self.type_var = tk.StringVar()
         self.type_var.set(circuits[0])
         self.type_drop = tk.OptionMenu(self, self.type_var, *circuits)
@@ -79,34 +79,27 @@ class MainApplication(tk.Frame):
                                     height=1, width=10)
         self.add_drug_button.place(x=40,y=330)
         # Text box
-        self.screen_box = tk.Text(self, height=15.4, width=45)
+        self.screen_box = tk.Text(self, height=21, width=50)
         self.screen_box.place(x=300, y=60)
         # Submit button
         self.submit_button = tk.Button(self, text="Run Circuit",
                                         command=self.run_circuit,
                                         height=1, width=20, bg='green')
-        self.submit_button.place(x=400, y=330)
+        self.submit_button.place(x=40, y=375)
 
     # Populate, check timepoints
     def get_timepoints(self):
-        timepoints = {}
+        timepoints = {1:"1 min", 2:"5 min", 3:"15 min", 4:"30 min", 5:"1 hr",
+                        6:"2 hr", 7:"3 hr", 8:"4 hr", 9:"5 hr",
+                        10:"6 hr"}
         end = self.length_var.get()
-        if end == "6":
-            timepoints = {1:"1 min", 2:"5 min", 3:"15 min", 4:"30 min", 5:"1 hr",
-                            6:"2 hr", 7:"3 hr", 8:"4 hr", 9:"5 hr",
-                            10:"6 hr"}
-        elif end == "8":
-            timepoints = {1:"1 min", 2:"5 min", 3:"15 min", 4:"30 min", 5:"1 hr",
-                            6:"2 hr", 7:"3 hr", 8:"4 hr", 9:"5 hr",
-                            10:"6 hr", 11:"8 hr"}
+
+        if end == "8":
+            timepoints.update({11:"8 hr"})
         elif end == "10":
-            timepoints = {1:"1 min", 2:"5 min", 3:"15 min", 4:"30 min", 5:"1 hr",
-                            6:"2 hr", 7:"3 hr", 8:"4 hr", 9:"5 hr",
-                            10:"6 hr", 11:"8 hr",12:"10 hr"}
+            timepoints.update({11:"8 hr",12:"10 hr"})
         elif end == "24":
-            timepoints = {1:"1 min", 2:"5 min", 3:"15 min", 4:"30 min", 5:"1 hr",
-                            6:"2 hr", 7:"3 hr", 8:"4 hr", 9:"5 hr",
-                            10:"6 hr", 11:"8 hr", 12:"24 hr"}
+            timepoints.update({11:"8 hr", 12:"24 hr"})
 
         return timepoints
 
@@ -115,6 +108,7 @@ class MainApplication(tk.Frame):
         print_to_screen(self.screen_box, "Please edit/confirm timepoints:\n",
                         delete=True)
         self.timepoints_button.config(text="Confirm")
+        self.timepoints_dict = self.get_timepoints()
         self.timepoints_button.config(command=self.add_timepoints)
         tps = print_dict(self.timepoints_dict)
         print_to_screen(self.screen_box, tps)
@@ -127,9 +121,9 @@ class MainApplication(tk.Frame):
             if t:
                 temp = t.split(':')
                 self.timepoints_dict[int(temp[0])] = temp[1]
-        print(print_dict(self.timepoints_dict))
-        print(len(self.timepoints_dict))
         print_to_screen(self.screen_box, "Confirmed!", delete=True)
+        self.timepoints_button.config(text="Check")
+        self.timepoints_button.config(command=self.check_timepoints)
 
     # Adds drugs to dictionary and print to screen
     def add_drug(self):
@@ -167,7 +161,7 @@ class MainApplication(tk.Frame):
         # User check
         new_circuit = circuit.Circuit(circuit_num, length, timepoints, compounds,
                                         type, control, date)
-        print_to_screen(self.screen_box, new_circuit.print_circuit())
+        print_to_screen(self.screen_box, new_circuit.print_circuit(), delete=True)
         user_check = show_message("Please review circuit. Do you wish to \
                                     continue?", type='question')
         if user_check == 'yes':

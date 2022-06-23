@@ -12,9 +12,9 @@ class Circuit():
                  date):
         self.length = length
         self.circuit_num = circuit_num
-        self.timepoints = timpoints
+        self.timepoints = timepoints
         self.drugs = drugs
-        self.type = type
+        self.type = [type] if type != "ECMO and CRRT" else ["ECMO", "CRRT"]
         self.control = control
         # format not working for tkcal
         temps = str(date).split('-')
@@ -26,19 +26,21 @@ class Circuit():
                 "Type: {}\n"
                 "Length: {} hours\n"
                 "Drugs:  {}"
-                "Control: {}\n")
+                "Control: {}\n"
+                "Timepoints: {}")
         return str.format(self.date,
                         self.type,
                         self.length,
-                        self.print_drugs(),
-                        self.control)
+                        self.print_dicts(self.drugs),
+                        self.control,
+                        self.print_dicts(self.timepoints))
 
-    def print_drugs(self):
+    def print_dicts(self, dict):
         s = ""
         tab = ""
-        for abrv, drug in self.drugs.items():
-            s = s + tab + "{} ({})\n".format(drug, abrv)
-            tab = "\t"
+        for value, key in dict.items():
+            s = s + tab + "{} ({})\n".format(value, key)
+            tab = '\t'
         return s
 
     def set_IDs(self):
