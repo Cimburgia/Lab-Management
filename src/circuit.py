@@ -14,7 +14,8 @@ class Circuit():
         self.circuit_num = circuit_num
         self.timepoints = timepoints
         self.drugs = drugs
-        self.type = [type] if type != "ECMO and CRRT" else ["ECMO", "CRRT"]
+        self.type = type
+        self.types = [type] if type != "ECMO and CRRT" else ["ECMO", "CRRT"]
         self.control = control
         # format not working for tkcal
         temps = str(date).split('-')
@@ -47,8 +48,6 @@ class Circuit():
         # Generate 1 to n labels
         types = []
         IDs = []
-        coad = "CoAd" if len(self.drugs) > 1 else ""
-
 
         if self.type == "ECMO":
             types.append("EA")
@@ -64,11 +63,11 @@ class Circuit():
             types.append("CA")
             types.append("CH")
             if self.control:
-                sample_types.append("EC")
+                types.append("EC")
 
         for t in types:
             for d in self.drugs.keys():
-                temp_id = t[0] + coad + self.circuit_num + d + t[1]
+                temp_id = t[0] + self.circuit_num + d + t[1]
                 IDs.append(temp_id)
 
         return IDs
