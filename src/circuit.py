@@ -15,7 +15,6 @@ class Circuit():
         self.timepoints = timepoints
         self.drugs = drugs
         self.type = type
-        self.types = [type] if type != "ECMO and CRRT" else ["ECMO", "CRRT"]
         self.control = control
         # format not working for tkcal
         temps = str(date).split('-')
@@ -24,12 +23,14 @@ class Circuit():
 
     def print_circuit(self):
         str = ("{} Circuit Overview:\n"
+                "Number: {}\n"
                 "Type: {}\n"
                 "Length: {} hours\n"
                 "Drugs:  {}"
                 "Control: {}\n"
                 "Timepoints: {}")
-        return str.format(self.date,
+        return str.format(self.circuit_num,
+                        self.date,
                         self.type,
                         self.length,
                         self.print_dicts(self.drugs),
@@ -58,16 +59,16 @@ class Circuit():
             types.append("CH")
             if self.control:
                 types.append("CC")
-        if self.type == "ECMO and CRRT":
-            types.append("EA")
-            types.append("CA")
-            types.append("CH")
-            if self.control:
-                types.append("EC")
 
         for t in types:
             for d in self.drugs.keys():
                 temp_id = t[0] + self.circuit_num + d + t[1]
                 IDs.append(temp_id)
+        self.IDs = IDs
 
         return IDs
+
+    def get_samples_per_drug(self):
+        add_ctrl = 1 if self.control else 0
+        add_hf = 1 if self.type == 'CRRT' else 0
+        return len(self.timepoints) * (1 + add_ctrl + add_hf)

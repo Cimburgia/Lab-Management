@@ -24,18 +24,18 @@ class MainApplication(tk.Frame):
         self.date_label.place(x=40, y=60)
         self.date_cal = tkcal.DateEntry(self, selectmode='day')
         self.date_cal.place(x=120, y=60)
-        # Circuit length
+        # Circuit Number
         self.number_label = tk.Label(self, text="Circuit Number:")
         self.number_label.place(x=40, y=90)
         self.circuit_num_var = tk.StringVar()
         self.circuit_num_var.set("1")
         self.number_entry = tk.Entry(self,
-        textvariable=self.circuit_num_var, width=10)
+                                    textvariable=self.circuit_num_var, width=10)
         self.number_entry.place(x=135, y=90)
         # Circuit type
         self.type_label = tk.Label(self, text="Circuit Type:")
         self.type_label.place(x=40, y=120)
-        circuits = ['ECMO','CRRT','ECMO and CRRT']
+        circuits = ['ECMO','CRRT']
         self.type_var = tk.StringVar()
         self.type_var.set(circuits[0])
         self.type_drop = tk.OptionMenu(self, self.type_var, *circuits)
@@ -55,7 +55,6 @@ class MainApplication(tk.Frame):
                                             command=self.check_timepoints)
         self.timepoints_button.place(x=115, y=190)
         self.timepoints_dict = self.get_timepoints()
-
         # Control
         self.label_control = tk.Label(self, text="Control:")
         self.label_control.place(x=40, y=230)
@@ -105,7 +104,7 @@ class MainApplication(tk.Frame):
 
 
     def check_timepoints(self):
-        print_to_screen(self.screen_box, "Please edit/confirm timepoints:\n",
+        print_to_screen(self.screen_box, "Please edit and confirm timepoints:\n",
                         delete=True)
         self.timepoints_button.config(text="Confirm")
         self.timepoints_dict = self.get_timepoints()
@@ -117,13 +116,17 @@ class MainApplication(tk.Frame):
         tps = self.screen_box.get("1.0",'end-1c')
         tps = tps.split("\n")
 
-        for t in tps[1:]:
-            if t:
-                temp = t.split(':')
-                self.timepoints_dict[int(temp[0])] = temp[1]
-        print_to_screen(self.screen_box, "Confirmed!", delete=True)
-        self.timepoints_button.config(text="Check")
-        self.timepoints_button.config(command=self.check_timepoints)
+        try:
+            for t in tps[1:]:
+                if t:
+                    temp = t.split(':')
+                    self.timepoints_dict[int(temp[0])] = temp[1]
+        except:
+            show_message("Must maintain sample#:timepoint format")
+        else:
+            print_to_screen(self.screen_box, "Timepoints confirmed!", delete=True)
+            self.timepoints_button.config(text="Check")
+            self.timepoints_button.config(command=self.check_timepoints)
 
     # Adds drugs to dictionary and print to screen
     def add_drug(self):
@@ -151,6 +154,9 @@ class MainApplication(tk.Frame):
         if not length.isnumeric():
             show_message('Circuit length must be numeric.')
             return
+        if not circuit_num.isnumeric():
+            show_message('Circuit number must be numeric.')
+            return
         if not compounds or '' in compounds:
             compounds.pop('', None)
             show_message('No drugs added.')
@@ -164,15 +170,16 @@ class MainApplication(tk.Frame):
         print_to_screen(self.screen_box, new_circuit.print_circuit(), delete=True)
         user_check = show_message("Please review circuit. Do you wish to \
                                     continue?", type='question')
-        if user_check == 'yes':
-            message = "\nCreating new {} circuit...\n".format(new_circuit.type)
-            print_to_screen(self.screen_box, message)
-        else:
+        if user_check == 'No':
             message = "Please re-add drugs and check circuit parameters."
             print_to_screen(self.screen_box, message, delete=True)
             return
 
-        server.start_update(new_circuit)
+        message = "Circuit created!\nCircuit IDs:\n"
+        print_to_screen(self.screen_box, message, delete=True)
+        ids = new_circuit.set_IDs()
+        for i in ids:
+            print_to_screen(self.screen_box, i + "\n")
 
 def show_message(message, type='error'):
     if type == 'question':
