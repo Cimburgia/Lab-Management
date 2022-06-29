@@ -58,6 +58,8 @@ def make_boxmaps(circuit, IDs):
                     start = 81 - room
                     label = cand_box[:-4]
                     new = False
+                else:
+                    box_num = box_num + 1
             # Check if new box needs to be made
             if new:
                 cand_box = "{}_{}_Box{}_{}.csv".format(cur_drug,
@@ -93,6 +95,8 @@ def make_boxmaps(circuit, IDs):
                 df = pd.concat([box, df])
 
             df.to_csv("../../Box Maps/" + cand_box, index=False)
+
+def make_labels(cicuit):
 
 def build_file_names(circuit, extension, other=""):
     file_names = []
