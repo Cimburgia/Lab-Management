@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import docx
-from docx.enum.section import WD_ORIENT
-from docx.enum.section import WD_SECTION
+from docx.shared import Cm
 from circuit import Circuit
 from operator import itemgetter
 from itertools import groupby
@@ -119,6 +118,49 @@ def build_labs_crf(circuit, drug):
     file = build_file_name(circuit, "docx", drug_long, other="_Labs_CRF")
     doc.save("../../CRF Templates and Labels/" + file)
 
+def build_sampling_crf(circuit, drug):
+    doc = docx.Document("../../CRF Templates and Labels/CRF_Sample_Collection_Template.docx")
+    table = doc.tables[0]
+    num_rows = circuit.get_samples_per_drug()
+    extra_rows = 1
+    sample_types = circuit.get_sample_types()
+    mod = len(sample_types)
+    drug_long = circuit.drugs[drug]
+
+    if circuit.control:
+        row = table.add_row()
+        extra_rows = 2
+        for i in range(2,6):
+            cell = table.cell(2,1)
+            cell.merge(table.cell(2,i))
+        table.cell(1,1).text = "DOSE 1 CONTROL"
+        table.cell(1,6).text = "-5m"
+        table.cell(2,1).text = "DOSE 1 CIRCUIT"
+        table.cell(2,6).text = "0m"
+
+    s_num = 0
+    for i in range(num_rows):
+        row = table.add_row()
+        site = sample_types[i%mod]
+        cells = row.cells
+        if i%mod == 0:
+            s_num = s_num+1
+        cells[0].text = circuit.type
+        cells[1].text = circuit.circuit_num
+        cells[2].text = drug
+        cells[3].text = site
+        cells[4].text = str(s_num)
+        cells[5].text = circuit.tube_date
+        cells[6].text = circuit.timepoints[s_num]
+
+    for row in table.rows:
+        row.height = Cm(1.1)
+    file = build_file_name(circuit, "docx", drug_long, other="_Samples_CRF")
+    doc.save("../../CRF Templates and Labels/" + file)
+
+
+    doc.save("test.docx")
+
 def build_file_name(circuit, extension, drug, other=""):
     date = circuit.file_date
     type = circuit.type
@@ -148,7 +190,7 @@ def main():
                      "True",
                      "2022-6-23")
 
-    build_labs_crf(test, "Dx")
+    build_sampling_crf(test, "Dx")
 
 if __name__ == "__main__":
     main()

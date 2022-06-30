@@ -47,8 +47,16 @@ class Circuit():
             tab = '\t'
         return s
 
+    def get_sample_types(self):
+        types = ["A"]
+        if self.control:
+            types.append("C")
+        if self.type == "CRRT":
+            types.append("H")
+        return types
+        
     def set_IDs(self):
-        # Generate 1 to n labels
+        # Generate 1 to n labelsS
         types = []
         IDs = []
 
