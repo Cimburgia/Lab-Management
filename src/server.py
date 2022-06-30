@@ -37,8 +37,8 @@ def make_boxmaps(circuit, IDs):
             cand_box = None
             box_num = 1
             num_samples = circuit.get_samples_per_drug()
-            file_date = circuit.date.replace('/','')
-            tube_date = circuit.date.replace('/','.')
+            file_date = circuit.file_date
+            tube_date = circuit.tube_date
             cir_names = list(circuits)
             cells = generate_cells()
             start = 0
@@ -101,47 +101,29 @@ def make_boxmaps(circuit, IDs):
 
             df.to_csv("../../Box Maps/" + cand_box, index=False)
 
-def build_labs_crf(circuit):
-    doc = docx.Document()
-    sections = doc.sections
-    for s in sections:
-        s.orientation = WD_ORIENT.LANDSCAPE
-        new_width, new_height = s.page_height, s.page_width
-        s.page_width = new_width
-        s.page_height = new_height
+def build_labs_crf(circuit, drug):
+    doc = docx.Document("../../CRF Templates and Labels/Labs_CRF.docx")
+    drug_long = circuit.drugs[drug]
+    table = doc.tables[0]
+    for i in range(1,11):
+        table.cell(i,0).text = circuit.type
+        table.cell(i,1).text = circuit.circuit_num
+        table.cell(i,2).text = drug
+        table.cell(i,3).text = circuit.tube_date
 
-    # Header
-    section = doc.sections[0]
-    header = section.header
-    h_para = header.paragraphs[0]
-    h_para.text = "Date:__________________" + \
-                    "\t\t\tPage_______ of ______\n" + \
-                    "Circuit #:__________________\n" + \
-                    "Drug:__________________"
+        if i + 3 <= circuit.samples_per_type and i != 1:
+            table.cell(i,5).text = str(i + 3)
+        elif i == 1:
+            table.cell(i,5).text = "0"
 
-    table = doc.add_table(rows=12, cols=14, style = 'Table Grid')
-    head = table.rows[0].cells
-    cols = ["Mode", "Circuit", "Drug", "Date", "Time", "Sample", "ph", "CO2",
-            "O2", "HCO3", "Na", "K", "Hgb", "Hct"]
-    for idx, c in enumerate(cols):
-        run = head[idx].paragraphs[0].add_run(c)
-        run.bold = True
+    file = build_file_name(circuit, "docx", drug_long, other="_Labs_CRF")
+    doc.save("../../CRF Templates and Labels/" + file)
 
+def build_file_name(circuit, extension, drug, other=""):
+    date = circuit.file_date
+    type = circuit.type
 
-    doc.save("test.docx")
-
-
-def build_file_names(circuit, extension, other=""):
-    file_names = []
-    drugs = circuit.drugs.keys()
-    date = circuit.date.replace("/","")
-
-    for d in drugs:
-        for t in circuit.type:
-            name = "{}_{}_{}{}.{}".format(d,t,date,other,extension)
-            file_names.append(name)
-
-    return file_names
+    return "{}_{}_{}{}.{}".format(drug, type, date, other, extension)
 
 def get_filenames(path):
     files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
@@ -166,7 +148,7 @@ def main():
                      "True",
                      "2022-6-23")
 
-    build_labs_crf(test)
+    build_labs_crf(test, "Dx")
 
 if __name__ == "__main__":
     main()

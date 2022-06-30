@@ -18,8 +18,10 @@ class Circuit():
         self.control = control
         # format not working for tkcal
         temps = str(date).split('-')
-        up_date = "{}/{}/{}".format(temps[1], temps[2], temps[0])
-        self.date = up_date
+        self.date = "{}/{}/{}".format(temps[1], temps[2], temps[0])
+        self.tube_date = "{}.{}.{}".format(temps[1], temps[2], temps[0])
+        self.file_date = "{}{}{}".format(temps[1], temps[2], temps[0])
+        self.samples_per_type = list(timepoints)[-1]
 
     def print_circuit(self):
         str = ("{} Circuit Overview:\n"
