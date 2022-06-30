@@ -1,9 +1,13 @@
 import pandas as pd
 import numpy as np
 import os
+import docx
+from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_SECTION
 from circuit import Circuit
 from operator import itemgetter
 from itertools import groupby
+
 
 def start_update(circuit):
     IDs = circuit.set_IDs
@@ -74,10 +78,11 @@ def make_boxmaps(circuit, IDs):
             time = 0
             count = range(start, 81)
             fill = True
+            mod = len(cir_names)
             for idx, x in enumerate(count):
-                if idx%3 == 0 and fill:
+                if idx%mod == 0 and fill:
                     time = time + 1
-                _type = cir_names[idx%3]
+                _type = cir_names[idx%mod]
                 if idx >= num_samples:
                     sample_id = "Empty"
                     tube_date = ""
@@ -96,7 +101,35 @@ def make_boxmaps(circuit, IDs):
 
             df.to_csv("../../Box Maps/" + cand_box, index=False)
 
-def make_labels(cicuit):
+def build_labs_crf(circuit):
+    doc = docx.Document()
+    sections = doc.sections
+    for s in sections:
+        s.orientation = WD_ORIENT.LANDSCAPE
+        new_width, new_height = s.page_height, s.page_width
+        s.page_width = new_width
+        s.page_height = new_height
+
+    # Header
+    section = doc.sections[0]
+    header = section.header
+    h_para = header.paragraphs[0]
+    h_para.text = "Date:__________________" + \
+                    "\t\t\tPage_______ of ______\n" + \
+                    "Circuit #:__________________\n" + \
+                    "Drug:__________________"
+
+    table = doc.add_table(rows=12, cols=14, style = 'Table Grid')
+    head = table.rows[0].cells
+    cols = ["Mode", "Circuit", "Drug", "Date", "Time", "Sample", "ph", "CO2",
+            "O2", "HCO3", "Na", "K", "Hgb", "Hct"]
+    for idx, c in enumerate(cols):
+        run = head[idx].paragraphs[0].add_run(c)
+        run.bold = True
+
+
+    doc.save("test.docx")
+
 
 def build_file_names(circuit, extension, other=""):
     file_names = []
@@ -133,7 +166,7 @@ def main():
                      "True",
                      "2022-6-23")
 
-    make_boxmaps(test, test.set_IDs())
+    build_labs_crf(test)
 
 if __name__ == "__main__":
     main()
