@@ -9,10 +9,21 @@ from itertools import groupby
 
 
 def start_update(circuit):
-    IDs = circuit.set_IDs
+    IDs = circuit.set_IDs()
 
+    # Clear out dir
+    dir = "../Circuit_CRFs"
+    for f in os.listdir(dir):
+        os.remove(os.path.join(dir, f))
     # Start Updates
     make_boxmaps(circuit, IDs)
+    build_labels(circuit, IDs)
+    for d in circuit.drugs.keys():
+        build_labs_crf(circuit, d)
+        build_sampling_crf(circuit, d)
+
+
+    return "Successfully ran circuit and saved materials!"
 
 def make_boxmaps(circuit, IDs):
     # Drug_Type_Box#_Date
@@ -99,6 +110,7 @@ def make_boxmaps(circuit, IDs):
                 df = pd.concat([box, df])
 
             df.to_csv("../../Box Maps/" + cand_box, index=False)
+            df.to_csv("../Circuit_CRFs/" + cand_box, index=False)
 
 def build_labs_crf(circuit, drug):
     doc = docx.Document("../../CRF Templates and Labels/Labs_CRF.docx")
@@ -117,6 +129,7 @@ def build_labs_crf(circuit, drug):
 
     file = build_file_name(circuit, "docx", drug_long, other="_Labs_CRF")
     doc.save("../../CRF Templates and Labels/" + file)
+    doc.save("../Circuit_CRFs/" + file)
 
 def build_sampling_crf(circuit, drug):
     doc = docx.Document("../../CRF Templates and Labels/CRF_Sample_Collection_Template.docx")
@@ -155,17 +168,41 @@ def build_sampling_crf(circuit, drug):
 
     for row in table.rows:
         row.height = Cm(1.1)
-    file = build_file_name(circuit, "docx", drug_long, other="_Samples_CRF")
+    file = build_file_name(circuit, "docx", other="_Samples_CRF")
     doc.save("../../CRF Templates and Labels/" + file)
+    doc.save("../Circuit_CRFs/" + file)
 
+def build_labels(circuit, ids):
+    doc = docx.Document("../../CRF Templates and Labels/Circuit_Labels.docx")
+    table = doc.tables[0]
+    row = 0
+    col = 0
+    drug_long = circuit.drugs[drug]
+    for i in range(circuit.samples_per_type):
+        for id in ids:
+            sample_id = id + str(i + 1) + "\n"
+            timepoint = circuit.timepoints[i+1] + "\n"
+            date = circuit.tube_date + "\n"
+            lab = [sample_id, timepoint, date]
+            table.cell(row, col).text = "".join(lab)
+            # Calculate spot on sheet
+            if row >= 14:
+                row = 0
+                col = col + 2
+            else:
+                row = row + 1
 
-    doc.save("test.docx")
+    file = build_file_name(circuit, "docx", drug_long, other="_Labels")
+    doc.save("../../CRF Templates and Labels/" + file)
+    doc.save("../Circuit_CRFs/" + file)
 
-def build_file_name(circuit, extension, drug, other=""):
+def build_file_name(circuit, extension, drug="", other=""):
+    if drug != "":
+        drug = drug + "_"
     date = circuit.file_date
     type = circuit.type
 
-    return "{}_{}_{}{}.{}".format(drug, type, date, other, extension)
+    return "{}{}_{}{}.{}".format(drug, type, date, other, extension)
 
 def get_filenames(path):
     files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
@@ -190,7 +227,7 @@ def main():
                      "True",
                      "2022-6-23")
 
-    build_sampling_crf(test, "Dx")
+    build_labels(test, test.set_IDs("Dx"), "Dx")
 
 if __name__ == "__main__":
     main()

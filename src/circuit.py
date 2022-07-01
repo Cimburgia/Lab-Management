@@ -54,9 +54,11 @@ class Circuit():
         if self.type == "CRRT":
             types.append("H")
         return types
-        
-    def set_IDs(self):
-        # Generate 1 to n labelsS
+
+    def set_IDs(self, drug=None):
+        if drug is None:
+            drug = self.drugs
+        # Generate 1 to n labels
         types = []
         IDs = []
 
@@ -71,7 +73,7 @@ class Circuit():
                 types.append("CC")
 
         for t in types:
-            for d in self.drugs.keys():
+            for d in drug:
                 temp_id = t[0] + self.circuit_num + d + t[1]
                 IDs.append(temp_id)
         self.IDs = IDs

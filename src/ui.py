@@ -180,6 +180,8 @@ class MainApplication(tk.Frame):
         ids = new_circuit.set_IDs()
         for i in ids:
             print_to_screen(self.screen_box, i + "\n")
+        end = server.start_update(new_circuit)
+        print_to_screen(self.screen_box, end, delete=True)
 
 def show_message(message, type='error'):
     if type == 'question':
